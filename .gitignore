@@ -1,0 +1,5 @@
+.cache/
+*.obj
+*.exe
+compile_commands.json
+output/
