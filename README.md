@@ -45,7 +45,10 @@ Total time to create images=1.334815 seconds
 
 We have placed timer code surrounding the main computational loop inside main.cpp. It is your goal to reduce this runtime as much as possible, while maintaining or increasing the complexity (i.e. resolution, number of frames) of the scene.
 
-Here we see that the image took 1.3 seconds to run and produced a result in `output/pianoroom.ppm`. Input and output of images is already handled by the library. In particular, the PPM format (see https://en.wikipedia.org/wiki/Netpbm for an example), represents images as text for data -- which makes it easy to input and output without the use of a library. However, as this is not the most efficient, this application uses the tool ImageMagick tool to convert to and from the PPM formats.
+Here we see that the image took 1.3 seconds to run and produced a result in `output/pianoroom.ppm`. Input and output of images is already handled by the library. In particular, the PPM format (see https://en.wikipedia.org/wiki/Netpbm for an example), represents images as text for data -- which makes it easy to input and output without the use of a library. However, as this is not the most efficient, this application uses the tool ImageMagick tool to convert to and from the PPM formats. Convert the PPM to a PNG with the following command:
+```bash
+convert output/pianoroom.ppm output/pianoroom.png
+```
 
 ## Input Programs
 This project contains three (arguably four) input programs for you to optimize.
