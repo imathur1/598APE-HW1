@@ -1,4 +1,5 @@
 #include "triangle.h"
+#include "vector.h"
 
 Triangle::Triangle(const Vector &c, const Vector &b, const Vector &a,
                    Texture *t)
@@ -41,7 +42,9 @@ Triangle::Triangle(const Vector &c, const Vector &b, const Vector &a,
   up.y = ycos * zcos + xsin * ysin * zsin;
   up.z = -xcos * ysin;
   Vector temp = vect.cross(right);
-  Vector np = solveScalers(right, up, vect, a - c);
+
+  updateScalerCache(right, up, vect);
+  Vector np = solveScalersCached(a - c, cachedDenom, coeffsA, coeffsB, coeffsC);
   textureY = np.y;
   thirdX = np.x;
 
@@ -52,8 +55,8 @@ double Triangle::getIntersection(const Ray &ray) const {
   double time = Plane::getIntersection(ray);
   if (time == inf)
     return time;
-  Vector dist =
-      solveScalers(right, up, vect, ray.point + ray.vector * time - center);
+  Vector dist = solveScalersCached(ray.point + ray.vector * time - center,
+                                   cachedDenom, coeffsA, coeffsB, coeffsC);
   unsigned char tmp =
       (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y - textureY) <
       0.0;
@@ -69,8 +72,8 @@ bool Triangle::getLightIntersection(const Ray &ray, double *fill) {
   const double r = -norm / t;
   if (r <= 0. || r >= 1.)
     return false;
-  Vector dist =
-      solveScalers(right, up, vect, ray.point + ray.vector * r - center);
+  Vector dist = solveScalersCached(ray.point + ray.vector * r - center,
+                                   cachedDenom, coeffsA, coeffsB, coeffsC);
 
   unsigned char tmp =
       (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y - textureY) <
