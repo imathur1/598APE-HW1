@@ -2,6 +2,6 @@
 *.obj
 *.exe
 compile_commands.json
-output/
 .DS_Store
+output/pianoroom.ppm
 my_profile.prof
