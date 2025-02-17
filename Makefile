@@ -13,8 +13,7 @@ ifndef PROFILE
     PROFILE := 0
 endif
 
-
-.PHONY: clean test
+.PHONY: clean test view-profile
 
 all:
 	cd ./src && make
@@ -27,3 +26,6 @@ clean:
 
 test:
 	./test.sh pianoroom
+
+view-profile:
+	~/go/bin/pprof -http "0.0.0.0:8080" main.exe ./my_profile.prof
