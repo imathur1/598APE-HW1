@@ -39,7 +39,7 @@ jobs:
         id: run_tests
         run: |
           make -j
-          OUTPUT=$(./test.sh)
+          OUTPUT=$(./run_tests.sh)
           OUTPUT_STATUS=$?
           echo "PAYLOAD<<EOF"$'\n'"$OUTPUT"$'\n'EOF >> "$GITHUB_OUTPUT"
           echo "$OUTPUT"
