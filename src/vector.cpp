@@ -103,4 +103,14 @@ Vector solveScalers(const Vector &v1, const Vector &v2, const Vector &v3,
   return Vector(a / denom, b / denom, c / denom);
 }
 
+// Add new optimized version that uses cached values
+Vector solveScalersCached(const Vector &C, double cachedDenom,
+                          const Vector &coeffsA, const Vector &coeffsB,
+                          const Vector &coeffsC) {
+  double a = C.x * coeffsA.x + C.y * coeffsA.y + C.z * coeffsA.z;
+  double b = C.x * coeffsB.x + C.y * coeffsB.y + C.z * coeffsB.z;
+  double c = C.x * coeffsC.x + C.y * coeffsC.y + C.z * coeffsC.z;
+  return Vector(a / cachedDenom, b / cachedDenom, c / cachedDenom);
+}
+
 Ray::Ray(const Vector &po, const Vector &ve) : point(po), vector(ve) {}
