@@ -9,11 +9,21 @@ OBJ_FILES := $(addprefix $(OBJ_DIR),$(notdir $(CPP_FILES:.cpp=.obj)))
 TEXTURE_CPP_FILES := $(wildcard src/Textures/*.cpp)
 TEXTURE_OBJ_FILES := $(addprefix $(OBJ_DIR)Textures/,$(notdir $(TEXTURE_CPP_FILES:.cpp=.obj)))
 
+ifndef PROFILE
+    PROFILE := 0
+endif
+
+
+.PHONY: clean test
+
 all:
 	cd ./src && make
-	$(FUNC) ./main.cpp -o ./main.exe ./src/*.obj ./src/Textures/*.obj $(FLAGS)
+	$(FUNC) -DPROFILE=$(PROFILE) ./main.cpp -o ./main.exe ./src/*.obj ./src/Textures/*.obj $(FLAGS)
 
 clean:
 	cd ./src && make clean
 	rm -f ./*.exe
 	rm -f ./*.obj
+
+test:
+	./test.sh pianoroom
