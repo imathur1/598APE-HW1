@@ -1,7 +1,7 @@
 FUNC := clang++
 copt := -c 
 OBJ_DIR := ./bin/
-FLAGS := -O3 -lm -g -Werror -lprofiler -fopenmp
+FLAGS := -O3 -lm -g -Werror -lprofiler -fopenmp -msse2 -mavx2
 
 CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix $(OBJ_DIR),$(notdir $(CPP_FILES:.cpp=.obj)))
