@@ -1,9 +1,10 @@
 #include "triangle.h"
 #include "vector.h"
+#include <limits>
 
 Triangle::Triangle(const Vector &c, const Vector &b, const Vector &a,
                    Texture *t)
-    : Plane(Vector(0, 0, 0), t, 0., 0., 0., 0., 0.) {
+    : Plane(Vector(0, 0, 0), t, 0., 0., 0., 0., 0.), a(a), b(b), c(c) {
   center = c;
   Vector righta = (b - c);
   textureX = righta.mag();
@@ -52,18 +53,44 @@ Triangle::Triangle(const Vector &c, const Vector &b, const Vector &a,
 }
 
 double Triangle::getIntersection(const Ray &ray) const {
-  double time = Plane::getIntersection(ray);
-  if (time == inf)
-    return time;
-  Vector dist = solveScalersCached(ray.point + ray.vector * time - center,
-                                   cachedDenom, coeffsA, coeffsB, coeffsC);
-  unsigned char tmp =
-      (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y - textureY) <
-      0.0;
-  return ((tmp != (textureX * dist.y < 0.0)) ||
-          (tmp != (dist.x * textureY - thirdX * dist.y < 0.0)))
-             ? inf
-             : time;
+  // The Moller-Trumbore algorithm
+  constexpr double epsilon = std::numeric_limits<double>::epsilon();
+  Vector edge1 = b - a;
+  Vector edge2 = c - a;
+  Vector ray_cross_e2 = ray.vector.cross(edge2);
+  double det = edge1.dot(ray_cross_e2);
+  if (det > -epsilon && det < epsilon)
+    return inf;
+  double inv_det = 1. / det;
+  Vector s = ray.point - a;
+  double u = inv_det * s.dot(ray_cross_e2);
+  if ((u < 0.0 && std::abs(u) > epsilon) ||
+      (u > 1.0 && std::abs(u - 1.0) > epsilon))
+    return inf;
+
+  Vector s_cross_e1 = s.cross(edge1);
+  double v = inv_det * ray.vector.dot(s_cross_e1);
+  if ((v < 0.0 && std::abs(v) > epsilon) ||
+      (u + v > 1.0 && std::abs(u + v - 1.0) > epsilon))
+    return inf;
+
+  double t = inv_det * edge2.dot(s_cross_e1);
+  if (t > epsilon)
+    return t;
+  else
+    return inf;
+  //   double time = Plane::getIntersection(ray);
+  //   if (time == inf)
+  //     return time;
+  //   Vector dist = solveScalersCached(ray.point + ray.vector * time - center,
+  //                                    cachedDenom, coeffsA, coeffsB, coeffsC);
+  //   unsigned char tmp =
+  //       (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y -
+  //       textureY) < 0.0;
+  //   return ((tmp != (textureX * dist.y < 0.0)) ||
+  //           (tmp != (dist.x * textureY - thirdX * dist.y < 0.0)))
+  //              ? inf
+  //              : time;
 }
 
 bool Triangle::getLightIntersection(const Ray &ray, double *fill) {

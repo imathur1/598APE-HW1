@@ -4,6 +4,7 @@
 
 class Triangle : public Plane {
 public:
+  Vector a, b, c;
   double thirdX;
   Triangle(const Vector &c, const Vector &b, const Vector &a, Texture *t);
   double getIntersection(const Ray &ray) const;
