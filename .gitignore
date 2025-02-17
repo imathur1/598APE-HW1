@@ -3,3 +3,4 @@
 *.exe
 compile_commands.json
 output/
+.DS_Store
