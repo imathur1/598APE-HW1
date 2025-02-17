@@ -79,21 +79,12 @@ double Triangle::getIntersection(const Ray &ray) const {
     return t;
   else
     return inf;
-  //   double time = Plane::getIntersection(ray);
-  //   if (time == inf)
-  //     return time;
-  //   Vector dist = solveScalersCached(ray.point + ray.vector * time - center,
-  //                                    cachedDenom, coeffsA, coeffsB, coeffsC);
-  //   unsigned char tmp =
-  //       (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y -
-  //       textureY) < 0.0;
-  //   return ((tmp != (textureX * dist.y < 0.0)) ||
-  //           (tmp != (dist.x * textureY - thirdX * dist.y < 0.0)))
-  //              ? inf
-  //              : time;
 }
 
 bool Triangle::getLightIntersection(const Ray &ray, double *fill) {
+  if (getIntersection(ray) == inf)
+    return false;
+
   const double t = ray.vector.dot(vect);
   const double norm = vect.dot(ray.point) + d;
   const double r = -norm / t;
@@ -102,12 +93,12 @@ bool Triangle::getLightIntersection(const Ray &ray, double *fill) {
   Vector dist = solveScalersCached(ray.point + ray.vector * r - center,
                                    cachedDenom, coeffsA, coeffsB, coeffsC);
 
-  unsigned char tmp =
-      (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y - textureY) <
-      0.0;
-  if ((tmp != (textureX * dist.y < 0.0)) ||
-      (tmp != (dist.x * textureY - thirdX * dist.y < 0.0)))
-    return false;
+  //   unsigned char tmp =
+  //       (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y -
+  //       textureY) < 0.0;
+  //   if ((tmp != (textureX * dist.y < 0.0)) ||
+  //       (tmp != (dist.x * textureY - thirdX * dist.y < 0.0)))
+  //     return false;
 
   if (texture->opacity > 1 - 1E-6)
     return true;
