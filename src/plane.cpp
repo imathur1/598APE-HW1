@@ -9,6 +9,7 @@ Plane::Plane(const Vector &c, Texture *t, double ya, double pi, double ro,
   normalMap = NULL;
   mapX = textureX;
   mapY = textureY;
+  updateScalerCache(right, up, vect);
 }
 
 void Plane::setAngles(double a, double b, double c) {
@@ -95,7 +96,8 @@ bool Plane::getLightIntersection(const Ray &ray, double *fill) {
 
   if (texture->opacity > 1 - 1E-6)
     return true;
-  Vector dist = solveScalers(right, up, vect, ray.point - center);
+  Vector dist = solveScalersCached(ray.point + ray.vector * r - center,
+                                   cachedDenom, coeffsA, coeffsB, coeffsC);
   unsigned char temp[4];
   double amb, op, ref;
   texture->getColor(temp, &amb, &op, &ref, fix(dist.x / textureX - .5),
@@ -111,7 +113,8 @@ bool Plane::getLightIntersection(const Ray &ray, double *fill) {
 void Plane::move() { d = -vect.dot(center); }
 void Plane::getColor(unsigned char *toFill, double *am, double *op, double *ref,
                      Autonoma *r, const Ray &ray, unsigned int depth) {
-  Vector dist = solveScalers(right, up, vect, ray.point - center);
+  Vector dist = solveScalersCached(ray.point - center, cachedDenom, coeffsA,
+                                   coeffsB, coeffsC);
   texture->getColor(toFill, am, op, ref, fix(dist.x / textureX - .5),
                     fix(dist.y / textureY - .5));
 }
@@ -121,7 +124,8 @@ Vector Plane::getNormal(const Vector &point) const {
   if (normalMap == NULL)
     return vect;
   else {
-    Vector dist = solveScalers(right, up, vect, point - center);
+    Vector dist = solveScalersCached(point - center, cachedDenom, coeffsA,
+                                     coeffsB, coeffsC);
     double am, ref, op;
     unsigned char norm[3];
     normalMap->getColor(norm, &am, &op, &ref, fix(dist.x / mapX - .5 + mapOffX),

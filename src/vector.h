@@ -11,6 +11,7 @@
 class Vector {
 public:
   double x, y, z;
+  Vector() : x(0.0), y(0.0), z(0.0) {}
   Vector(double a, double b, double c);
 
   void operator+=(const Vector &);
@@ -74,6 +75,10 @@ inline Vector operator/(const float a, const Vector b) {
 
 Vector solveScalers(const Vector &v1, const Vector &v2, const Vector &v3,
                     const Vector &solve);
+
+Vector solveScalersCached(const Vector &C, double cachedDenom,
+                          const Vector &coeffsA, const Vector &coeffsB,
+                          const Vector &coeffsC);
 
 int print_vector(FILE *stream, const struct printf_info *info,
                  const void *const *args);
