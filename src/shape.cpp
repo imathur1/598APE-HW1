@@ -36,16 +36,14 @@ void Shape::setRoll(double c) {
 void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
                unsigned int depth) {
   // Find closest intersection
-  ShapeNode *t = c->listStart;
   double curTime = inf;
   Shape *curShape = NULL;
-  while (t != NULL) {
-    double time = t->data->getIntersection(ray);
+  for (Shape *t : c->shapes) {
+    double time = t->getIntersection(ray);
     if (time < curTime) {
       curTime = time;
-      curShape = t->data;
+      curShape = t;
     }
-    t = t->next;
   }
   if (curShape == NULL || curTime == inf) {
     double opacity, reflection, ambient;
