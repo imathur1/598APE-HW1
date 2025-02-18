@@ -1,8 +1,11 @@
 #include "light.h"
 #include "camera.h"
 #include "shape.h"
+#include "vector.h"
+#include <glm/ext/vector_double3.hpp>
+#include <glm/geometric.hpp>
 
-Light::Light(const Vector &cente, unsigned char *colo) : center(cente) {
+Light::Light(const glm::dvec3 &cente, unsigned char *colo) : center(cente) {
   color = colo;
 }
 
@@ -65,9 +68,9 @@ void Autonoma::removeLight(LightNode *s) {
   free(s);
 }
 
-void getLight(double *tColor, Autonoma *aut, const Vector &point,
-              const Vector &norm, unsigned char flip) {
-  double normMag = norm.mag();
+void getLight(double *tColor, Autonoma *aut, const glm::dvec3 &point,
+              const glm::dvec3 &norm, unsigned char flip) {
+  double normMag = glm::length(norm);
   tColor[0] = tColor[1] = tColor[2] = 0.;
   LightNode *t = aut->lightStart;
   while (t != NULL) {
@@ -75,7 +78,7 @@ void getLight(double *tColor, Autonoma *aut, const Vector &point,
     lightColor[0] = t->data->color[0] / 255.;
     lightColor[1] = t->data->color[1] / 255.;
     lightColor[2] = t->data->color[2] / 255.;
-    Vector ra = t->data->center - point;
+    glm::dvec3 ra = t->data->center - point;
     bool hit = false;
     for (Shape *shape : aut->shapes) {
       if (shape->getLightIntersection(Ray(point + ra * .01, ra), lightColor)) {
@@ -83,7 +86,7 @@ void getLight(double *tColor, Autonoma *aut, const Vector &point,
         break;
       }
     }
-    double perc = (norm.dot(ra) / (ra.mag() * normMag));
+    double perc = (glm::dot(norm, ra) / (glm::length(ra) * normMag));
     if (!hit) {
       if (flip && perc < 0)
         perc = -perc;

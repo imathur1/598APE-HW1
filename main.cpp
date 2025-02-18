@@ -9,6 +9,7 @@
 #include "src/sphere.h"
 #include "src/triangle.h"
 #include "src/vector.h"
+#include <glm/ext/vector_double3.hpp>
 #include <gperftools/profiler.h>
 #include <iostream>
 #include <omp.h>
@@ -51,9 +52,9 @@ void set(int i, int j, unsigned char r, unsigned char g, unsigned char b) {
 void refresh(Autonoma *c) {
 #pragma omp parallel for schedule(dynamic)
   for (int n = 0; n < H * W; ++n) {
-    Vector ra = c->camera.forward +
-                ((double)(n % W) / W - .5) * ((c->camera.right)) +
-                (.5 - (double)(n / W) / H) * ((c->camera.up));
+    glm::dvec3 ra = c->camera.forward +
+                    ((double)(n % W) / W - .5) * ((c->camera.right)) +
+                    (.5 - (double)(n / W) / H) * ((c->camera.up));
     calcColor(&DATA[3 * n], c, Ray(c->camera.focus, ra), 0);
   }
 }
@@ -173,8 +174,8 @@ Texture *parseTexture(FILE *f, bool allowNull) {
   exit(1);
 }
 
-Vector *getVectors(FILE *f, int len) {
-  Vector *vec = (Vector *)malloc(len * sizeof(Vector));
+glm::dvec3 *getVectors(FILE *f, int len) {
+  glm::dvec3 *vec = (glm::dvec3 *)malloc(len * sizeof(glm::dvec3));
   float x, y, z;
   for (int i = 0; i < len; i++) {
     if (fscanf(f, "%f %f %f\n", &x, &y, &z) == EOF) {
@@ -229,7 +230,7 @@ Autonoma *createInputs(const char *inputFile) {
     background = new ImageTexture(texture_path);
   }
   Autonoma *MAIN_DATA = new Autonoma(
-      Camera(Vector(camera_x, camera_y, camera_z), yaw, pitch, roll),
+      Camera(glm::dvec3(camera_x, camera_y, camera_z), yaw, pitch, roll),
       background);
 
   if (f) {
@@ -244,7 +245,7 @@ Autonoma *createInputs(const char *inputFile) {
                  "<color_g> <color_b>\n");
           exit(1);
         }
-        Light *light = new Light(Vector(light_x, light_y, light_z),
+        Light *light = new Light(glm::dvec3(light_x, light_y, light_z),
                                  getColor(color_r, color_g, color_b));
         MAIN_DATA->addLight(light);
       } else if (streq(object_type, "plane")) {
@@ -258,7 +259,7 @@ Autonoma *createInputs(const char *inputFile) {
           exit(1);
         }
         Texture *texture = parseTexture(f, false);
-        Plane *shape = new Plane(Vector(plane_x, plane_y, plane_z), texture,
+        Plane *shape = new Plane(glm::dvec3(plane_x, plane_y, plane_z), texture,
                                  yaw, pitch, roll, tx, ty);
         MAIN_DATA->addShape(shape);
         shape->normalMap = parseTexture(f, true);
@@ -273,7 +274,7 @@ Autonoma *createInputs(const char *inputFile) {
           exit(1);
         }
         Texture *texture = parseTexture(f, false);
-        Disk *shape = new Disk(Vector(disk_x, disk_y, disk_z), texture, yaw,
+        Disk *shape = new Disk(glm::dvec3(disk_x, disk_y, disk_z), texture, yaw,
                                pitch, roll, tx, ty);
         MAIN_DATA->addShape(shape);
         shape->normalMap = parseTexture(f, true);
@@ -288,8 +289,8 @@ Autonoma *createInputs(const char *inputFile) {
           exit(1);
         }
         Texture *texture = parseTexture(f, false);
-        Box *shape = new Box(Vector(box_x, box_y, box_z), texture, yaw, pitch,
-                             roll, tx, ty);
+        Box *shape = new Box(glm::dvec3(box_x, box_y, box_z), texture, yaw,
+                             pitch, roll, tx, ty);
         MAIN_DATA->addShape(shape);
         shape->normalMap = parseTexture(f, true);
       } else if (streq(object_type, "triangle")) {
@@ -303,8 +304,9 @@ Autonoma *createInputs(const char *inputFile) {
           exit(1);
         }
         Texture *texture = parseTexture(f, false);
-        Triangle *shape = new Triangle(Vector(x1, y1, z1), Vector(x2, y2, z2),
-                                       Vector(x3, y3, z3), texture);
+        Triangle *shape =
+            new Triangle(glm::dvec3(x1, y1, z1), glm::dvec3(x2, y2, z2),
+                         glm::dvec3(x3, y3, z3), texture);
         MAIN_DATA->addShape(shape);
         shape->normalMap = parseTexture(f, true);
       } else if (streq(object_type, "sphere")) {
@@ -318,7 +320,7 @@ Autonoma *createInputs(const char *inputFile) {
           exit(1);
         }
         Texture *texture = parseTexture(f, false);
-        Sphere *shape = new Sphere(Vector(sphere_x, sphere_y, sphere_z),
+        Sphere *shape = new Sphere(glm::dvec3(sphere_x, sphere_y, sphere_z),
                                    texture, yaw, pitch, roll, radius);
         MAIN_DATA->addShape(shape);
         shape->normalMap = parseTexture(f, true);
@@ -350,11 +352,11 @@ Autonoma *createInputs(const char *inputFile) {
           printf("Could not open triangles file %s\n", poly_filepath);
           exit(1);
         }
-        Vector *points = getVectors(vectors, num_points);
+        glm::dvec3 *points = getVectors(vectors, num_points);
         fclose(vectors);
         unsigned int *polys = getTriangles(triangles, num_polygons);
         fclose(triangles);
-        Vector offset(off_x, off_y, off_z);
+        glm::dvec3 offset(off_x, off_y, off_z);
         for (int i = 0; i < num_polygons; i++) {
           Triangle *shape = new Triangle(
               points[polys[3 * i]] + offset, points[polys[3 * i + 1]] + offset,

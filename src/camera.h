@@ -1,22 +1,22 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
-#include "vector.h"
+#include <glm/ext/vector_double3.hpp>
 
-class Camera{
+class Camera {
 public:
-   Vector focus, right, up, forward;
-   double xcos, xsin, ycos, ysin, zcos, zsin;
-   Camera(const Vector & cente);
-  
-   Camera(const Vector &f, double a, double b, double c);
+  glm::dvec3 focus, right, up, forward;
+  double xcos, xsin, ycos, ysin, zcos, zsin;
+  Camera(const glm::dvec3 &cente);
 
-   void setAngles(double a, double b, double c);
-   void setYaw(double a);
-   void setPitch(double a);
-   void setRoll(double b);
+  Camera(const glm::dvec3 &f, double a, double b, double c);
+
+  void setAngles(double a, double b, double c);
+  void setYaw(double a);
+  void setPitch(double a);
+  void setRoll(double b);
+
 private:
-   double yaw, pitch, roll;
-  
-} ;
+  double yaw, pitch, roll;
+};
 
 #endif

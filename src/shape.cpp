@@ -1,6 +1,10 @@
 #include "shape.h"
+#include "vector.h"
+#include <cmath>
+#include <glm/ext/vector_double3.hpp>
+#include <glm/geometric.hpp>
 
-Shape::Shape(const Vector &c, Texture *t, double ya, double pi, double ro)
+Shape::Shape(const glm::dvec3 &c, Texture *t, double ya, double pi, double ro)
     : center(c), texture(t), yaw(ya), pitch(pi), roll(ro){};
 
 void Shape::setAngles(double a, double b, double c) {
@@ -47,7 +51,7 @@ void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
   }
   if (curShape == NULL || curTime == inf) {
     double opacity, reflection, ambient;
-    Vector temp = ray.vector.normalize();
+    glm::dvec3 temp = glm::normalize(ray.vector);
     const double x = temp.x;
     const double z = temp.z;
     const double me = (temp.y < 0) ? -temp.y : temp.y;
@@ -57,7 +61,7 @@ void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
     return;
   }
 
-  Vector intersect = curTime * ray.vector + ray.point;
+  glm::dvec3 intersect = curTime * ray.vector + ray.point;
   double opacity, reflection, ambient;
   curShape->getColor(toFill, &ambient, &opacity, &reflection, c,
                      Ray(intersect, ray.vector), depth);
@@ -81,8 +85,8 @@ void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
       toFill[2] = (unsigned char)(toFill[2] * opacity + col[2] * (1 - opacity));
     }
     if (reflection > 1e-6) {
-      Vector norm = curShape->getNormal(intersect).normalize();
-      Vector vec = ray.vector - 2 * norm * (norm.dot(ray.vector));
+      glm::dvec3 norm = glm::normalize(curShape->getNormal(intersect));
+      glm::dvec3 vec = ray.vector - 2.0 * norm * (glm::dot(norm, ray.vector));
       Ray nextRay = Ray(intersect + vec * 1E-4, vec);
       calcColor(col, c, nextRay, depth + 1);
 
