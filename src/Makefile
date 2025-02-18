@@ -3,7 +3,7 @@ output := -o
 copt := -c 
 SRC_DIR := ./
 OBJ_DIR := ./
-FLAGS := -O3 -g -Werror -msse2 -mavx2 -I../include
+FLAGS := -O2 -g -Werror -march=native -I../include
 
 CPP_FILES := $(wildcard *.cpp)
 OBJ_FILES := $(addprefix $(OBJ_DIR),$(notdir $(CPP_FILES:.cpp=.obj)))

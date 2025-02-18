@@ -1,7 +1,7 @@
 FUNC := clang++
 copt := -c 
 output :=-o 
-FLAGS := -O3 -g -Werror -msse2 -mavx2 -I../../include
+FLAGS := -O2 -g -Werror -march=native -I../../include
 OBJ_DIR :=./
 
 CPP_FILES := $(wildcard *.cpp)
