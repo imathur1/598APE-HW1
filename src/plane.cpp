@@ -1,6 +1,9 @@
 #include "plane.h"
+#include "vector.h"
+#include <glm/ext/vector_double3.hpp>
+#include <glm/geometric.hpp>
 
-Plane::Plane(const Vector &c, Texture *t, double ya, double pi, double ro,
+Plane::Plane(const glm::dvec3 &c, Texture *t, double ya, double pi, double ro,
              double tx, double ty)
     : Shape(c, t, ya, pi, ro), vect(c), right(c), up(c) {
   textureX = tx;
@@ -31,7 +34,7 @@ void Plane::setAngles(double a, double b, double c) {
   right.x = xcos * zcos;
   right.y = -xcos * zsin;
   right.z = -xsin;
-  d = -vect.dot(center);
+  d = -glm::dot(vect, center);
 }
 
 void Plane::setYaw(double a) {
@@ -48,7 +51,7 @@ void Plane::setYaw(double a) {
   right.x = xcos * zcos;
   right.y = -xcos * zsin;
   right.z = -xsin;
-  d = -vect.dot(center);
+  d = -glm::dot(vect, center);
 }
 
 void Plane::setPitch(double b) {
@@ -61,7 +64,7 @@ void Plane::setPitch(double b) {
   up.x = -xsin * ysin * zcos + ycos * zsin;
   up.y = ycos * zcos + xsin * ysin * zsin;
   up.z = -xcos * ysin;
-  d = -vect.dot(center);
+  d = -glm::dot(vect, center);
 }
 
 void Plane::setRoll(double c) {
@@ -77,27 +80,27 @@ void Plane::setRoll(double c) {
   right.x = xcos * zcos;
   right.y = -xcos * zsin;
   // right.z = -xsin;
-  d = -vect.dot(center);
+  d = -glm::dot(vect, center);
 }
 
 double Plane::getIntersection(const Ray &ray) const {
-  const double t = ray.vector.dot(vect);
-  const double norm = vect.dot(ray.point) + d;
+  const double t = glm::dot(ray.vector, vect);
+  const double norm = glm::dot(vect, ray.point) + d;
   const double r = -norm / t;
   return (r > 0) ? r : inf;
 }
 
 bool Plane::getLightIntersection(const Ray &ray, double *fill) {
-  const double t = ray.vector.dot(vect);
-  const double norm = vect.dot(ray.point) + d;
+  const double t = glm::dot(ray.vector, vect);
+  const double norm = glm::dot(vect, ray.point) + d;
   const double r = -norm / t;
   if (r <= 0. || r >= 1.)
     return false;
 
   if (texture->opacity > 1 - 1E-6)
     return true;
-  Vector dist = solveScalersCached(ray.point + ray.vector * r - center,
-                                   cachedDenom, coeffsA, coeffsB, coeffsC);
+  glm::dvec3 dist = solveScalersCached(ray.point + ray.vector * r - center,
+                                       cachedDenom, coeffsA, coeffsB, coeffsC);
   unsigned char temp[4];
   double amb, op, ref;
   texture->getColor(temp, &amb, &op, &ref, fix(dist.x / textureX - .5),
@@ -110,29 +113,29 @@ bool Plane::getLightIntersection(const Ray &ray, double *fill) {
   return false;
 }
 
-void Plane::move() { d = -vect.dot(center); }
+void Plane::move() { d = -glm::dot(vect, center); }
 void Plane::getColor(unsigned char *toFill, double *am, double *op, double *ref,
                      Autonoma *r, const Ray &ray, unsigned int depth) {
-  Vector dist = solveScalersCached(ray.point - center, cachedDenom, coeffsA,
-                                   coeffsB, coeffsC);
+  glm::dvec3 dist = solveScalersCached(ray.point - center, cachedDenom, coeffsA,
+                                       coeffsB, coeffsC);
   texture->getColor(toFill, am, op, ref, fix(dist.x / textureX - .5),
                     fix(dist.y / textureY - .5));
 }
 unsigned char Plane::reversible() { return 1; }
 
-Vector Plane::getNormal(const Vector &point) const {
+glm::dvec3 Plane::getNormal(const glm::dvec3 &point) const {
   if (normalMap == NULL)
     return vect;
   else {
-    Vector dist = solveScalersCached(point - center, cachedDenom, coeffsA,
-                                     coeffsB, coeffsC);
+    glm::dvec3 dist = solveScalersCached(point - center, cachedDenom, coeffsA,
+                                         coeffsB, coeffsC);
     double am, ref, op;
     unsigned char norm[3];
     normalMap->getColor(norm, &am, &op, &ref, fix(dist.x / mapX - .5 + mapOffX),
                         fix(dist.y / mapY - .5 + mapOffY));
-    Vector ret =
-        ((norm[0] - 128) * right + (norm[1] - 128) * up + norm[2] * vect)
-            .normalize();
+    glm::dvec3 ret =
+        glm::normalize((norm[0] - 128.0) * right + (norm[1] - 128.0) * up +
+                       (norm[2] * 1.0) * vect);
     return ret;
   }
 }
