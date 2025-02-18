@@ -25,7 +25,9 @@ clean:
 	rm -f ./*.obj
 
 test:
-	./test.sh pianoroom
+	./test.sh pianoroom 500 500 24
+	./test.sh globe 1000 1000 24
+	./test.sh elephant 200 200
 
 view-profile:
 	~/go/bin/pprof -http "0.0.0.0:8080" main.exe ./my_profile.prof

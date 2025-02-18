@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
+#include <string>
 
 using namespace std;
 
@@ -387,94 +389,114 @@ double cosfn(double x, double from, double to) {
   return (to - from) * cos(x * 6.28) + from;
 }
 
-void setFrame(const char *animateFile, Autonoma *MAIN_DATA, int frame,
-              int frameLen) {
-  if (animateFile) {
-    char object_type[80];
-    char transition_type[80];
+// Structure to hold animation data
+struct AnimationData {
+    std::string transition_type;
+    std::string object_type;
     int obj_num;
-    char field_type[80];
+    std::string field_type;
     double from;
     double to;
-    FILE *f = fopen(animateFile, "r");
-    while (lscanf(f, "%s %s %d %s %lf %lf", transition_type, object_type,
-                  &obj_num, field_type, &from, &to) != EOF) {
-      double (*func)(double, double, double);
-      if (streq(transition_type, "linear")) {
-        func = identity;
-      } else if (streq(transition_type, "exp")) {
-        func = expfn;
-      } else if (streq(transition_type, "sin")) {
-        func = sinfn;
-      } else if (streq(transition_type, "cos")) {
-        func = cosfn;
-      } else {
-        printf("Unknown transition type %s, expected one of linear, exp, cos, "
-               "or sin\n",
-               transition_type);
-        exit(1);
-      }
-      double result = func((double)frame / frameLen, from, to);
+};
 
-      if (streq(object_type, "camera")) {
-        if (streq(field_type, "yaw")) {
-          MAIN_DATA->camera.setYaw(result);
-        } else if (streq(field_type, "pitch")) {
-          MAIN_DATA->camera.setPitch(result);
-        } else if (streq(field_type, "roll")) {
-          MAIN_DATA->camera.setRoll(result);
-        } else if (streq(field_type, "x")) {
-          MAIN_DATA->camera.focus.x = result;
-        } else if (streq(field_type, "y")) {
-          MAIN_DATA->camera.focus.y = result;
-        } else if (streq(field_type, "z")) {
-          MAIN_DATA->camera.focus.z = result;
-        } else {
-          printf("Unknown camera field_type %s, expected one of yaw, pitch, "
-                 "roll, x, y, z\n",
-                 field_type);
-          exit(1);
+// Function to read animation data from file
+const std::vector<AnimationData> readAnimationData(const char *animateFile) {
+    std::vector<AnimationData> animationDataList;
+    if (animateFile) {
+        FILE *f = fopen(animateFile, "r");
+        if (!f) {
+            printf("Could not open animation file %s\n", animateFile);
+            exit(1);
         }
-      } else if (streq(object_type, "object")) {
-        if (obj_num >= MAIN_DATA->shapes.size()) {
-          printf("Could not find object number %d\n", obj_num);
-          exit(1);
+        AnimationData data;
+        char transition_type[80], object_type[80], field_type[80];
+        while (lscanf(f, "%s %s %d %s %lf %lf", transition_type, object_type,
+                      &data.obj_num, field_type, &data.from, &data.to) != EOF) {
+            data.transition_type = transition_type;
+            data.object_type = object_type;
+            data.field_type = field_type;
+            animationDataList.push_back(data);
         }
-        Shape *shape = MAIN_DATA->shapes.at(obj_num);
-
-        if (streq(field_type, "yaw")) {
-          shape->setYaw(result);
-        } else if (streq(field_type, "pitch")) {
-          shape->setPitch(result);
-        } else if (streq(field_type, "roll")) {
-          shape->setRoll(result);
-        } else if (streq(field_type, "textureX")) {
-          shape->textureX = result;
-        } else if (streq(field_type, "textureY")) {
-          shape->textureY = result;
-        } else if (streq(field_type, "mapX")) {
-          shape->mapX = result;
-        } else if (streq(field_type, "mapY")) {
-          shape->mapY = result;
-        } else if (streq(field_type, "mapOffX")) {
-          shape->mapOffX = result;
-        } else if (streq(field_type, "mapOffY")) {
-          shape->mapOffY = result;
-        } else {
-          printf("Unknown shape field_type %s, expected one of yaw, pitch, "
-                 "roll, textureX, textureY, mapX, mapY, mapOffX, mapOffY\n",
-                 field_type);
-          exit(1);
-        }
-      } else {
-        printf("Unknown object_type %s, expected one of camera, object\n",
-               field_type);
-        exit(1);
-      }
+        fclose(f);
     }
-  }
+    return animationDataList;
+}
 
-  refresh(MAIN_DATA);
+void setFrame(const std::vector<AnimationData> &animationDataList, Autonoma *MAIN_DATA, int frame,
+              int frameLen) {
+    for (const auto &data : animationDataList) {
+        double (*func)(double, double, double);
+        if (streq(data.transition_type.c_str(), "linear")) {
+            func = identity;
+        } else if (streq(data.transition_type.c_str(), "exp")) {
+            func = expfn;
+        } else if (streq(data.transition_type.c_str(), "sin")) {
+            func = sinfn;
+        } else if (streq(data.transition_type.c_str(), "cos")) {
+            func = cosfn;
+        } else {
+            printf("Unknown transition type %s, expected one of linear, exp, cos, or sin\n",
+                   data.transition_type.c_str());
+            exit(1);
+        }
+        double result = func((double)frame / frameLen, data.from, data.to);
+
+        if (streq(data.object_type.c_str(), "camera")) {
+            if (streq(data.field_type.c_str(), "yaw")) {
+                MAIN_DATA->camera.setYaw(result);
+            } else if (streq(data.field_type.c_str(), "pitch")) {
+                MAIN_DATA->camera.setPitch(result);
+            } else if (streq(data.field_type.c_str(), "roll")) {
+                MAIN_DATA->camera.setRoll(result);
+            } else if (streq(data.field_type.c_str(), "x")) {
+                MAIN_DATA->camera.focus.x = result;
+            } else if (streq(data.field_type.c_str(), "y")) {
+                MAIN_DATA->camera.focus.y = result;
+            } else if (streq(data.field_type.c_str(), "z")) {
+                MAIN_DATA->camera.focus.z = result;
+            } else {
+                printf("Unknown camera field_type %s, expected one of yaw, pitch, roll, x, y, z\n",
+                       data.field_type.c_str());
+                exit(1);
+            }
+        } else if (streq(data.object_type.c_str(), "object")) {
+            if (data.obj_num >= MAIN_DATA->shapes.size()) {
+                printf("Could not find object number %d\n", data.obj_num);
+                exit(1);
+            }
+            Shape *shape = MAIN_DATA->shapes.at(data.obj_num);
+
+            if (streq(data.field_type.c_str(), "yaw")) {
+                shape->setYaw(result);
+            } else if (streq(data.field_type.c_str(), "pitch")) {
+                shape->setPitch(result);
+            } else if (streq(data.field_type.c_str(), "roll")) {
+                shape->setRoll(result);
+            } else if (streq(data.field_type.c_str(), "textureX")) {
+                shape->textureX = result;
+            } else if (streq(data.field_type.c_str(), "textureY")) {
+                shape->textureY = result;
+            } else if (streq(data.field_type.c_str(), "mapX")) {
+                shape->mapX = result;
+            } else if (streq(data.field_type.c_str(), "mapY")) {
+                shape->mapY = result;
+            } else if (streq(data.field_type.c_str(), "mapOffX")) {
+                shape->mapOffX = result;
+            } else if (streq(data.field_type.c_str(), "mapOffY")) {
+                shape->mapOffY = result;
+            } else {
+                printf("Unknown shape field_type %s, expected one of yaw, pitch, roll, textureX, textureY, mapX, mapY, mapOffX, mapOffY\n",
+                       data.field_type.c_str());
+                exit(1);
+            }
+        } else {
+            printf("Unknown object_type %s, expected one of camera, object\n",
+                   data.field_type.c_str());
+            exit(1);
+        }
+    }
+
+    refresh(MAIN_DATA);
 }
 
 int main(int argc, const char **argv) {
@@ -585,8 +607,13 @@ int main(int argc, const char **argv) {
   ProfilerStart("my_profile.prof");
 #endif
   gettimeofday(&start, NULL);
-  for (frame = 0; frame < frameLen; frame++) {
-    setFrame(animateFile, MAIN_DATA, frame, frameLen);
+
+  // Read animation data once
+  const std::vector<AnimationData> animationDataList = readAnimationData(animateFile);
+
+  // #pragma omp parallel for schedule(dynamic)
+  for (int frame = 0; frame < frameLen; ++frame) {
+    setFrame(animationDataList, MAIN_DATA, frame, frameLen);
     if (frameLen == 1) {
       snprintf(command, sizeof(command), "%s", outFile);
     } else if (png) {

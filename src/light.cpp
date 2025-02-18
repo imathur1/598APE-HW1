@@ -5,6 +5,8 @@
 #include <glm/ext/vector_double3.hpp>
 #include <glm/geometric.hpp>
 
+const unsigned char MAX_COLOR_VALUE = 255.;
+
 Light::Light(const glm::dvec3 &cente, unsigned char *colo) : center(cente) {
   color = colo;
 }
@@ -73,34 +75,36 @@ void getLight(double *tColor, Autonoma *aut, const glm::dvec3 &point,
   double normMag = glm::length(norm);
   tColor[0] = tColor[1] = tColor[2] = 0.;
   LightNode *t = aut->lightStart;
+  double lightColor[3];
   while (t != NULL) {
     double lightColor[3];
-    lightColor[0] = t->data->color[0] / 255.;
-    lightColor[1] = t->data->color[1] / 255.;
-    lightColor[2] = t->data->color[2] / 255.;
+
+    lightColor[0] = t->data->color[0] / MAX_COLOR_VALUE;
+    lightColor[1] = t->data->color[1] / MAX_COLOR_VALUE;
+    lightColor[2] = t->data->color[2] / MAX_COLOR_VALUE;
+
     glm::dvec3 ra = t->data->center - point;
     bool hit = false;
+    const Ray &ray = Ray(point + ra * .01, ra);
     for (Shape *shape : aut->shapes) {
-      if (shape->getLightIntersection(Ray(point + ra * .01, ra), lightColor)) {
+      if (shape->getLightIntersection(ray, lightColor)) {
         hit = true;
         break;
       }
     }
-    double perc = (glm::dot(norm, ra) / (glm::length(ra) * normMag));
+
+
     if (!hit) {
-      if (flip && perc < 0)
+      double perc = (glm::dot(norm, ra) / (glm::length(ra) * normMag));
+      if (perc < 0 && flip)
         perc = -perc;
       if (perc > 0) {
-
         tColor[0] += perc * (lightColor[0]);
         tColor[1] += perc * (lightColor[0]);
         tColor[2] += perc * (lightColor[0]);
-        if (tColor[0] > 1.)
-          tColor[0] = 1.;
-        if (tColor[1] > 1.)
-          tColor[1] = 1.;
-        if (tColor[2] > 1.)
-          tColor[2] = 1.;
+        tColor[0] = fmin(tColor[0], 1.0);
+        tColor[1] = fmin(tColor[1], 1.0);
+        tColor[2] = fmin(tColor[2], 1.0);
       }
     }
     t = t->next;
