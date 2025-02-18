@@ -68,7 +68,7 @@ void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
 
   double lightData[3];
 
-  const Vector &normal = curShape->getNormal(intersect);
+  const glm::dvec3 &normal = curShape->getNormal(intersect);
   getLight(lightData, c, intersect, normal,
            curShape->reversible());
   toFill[0] =
