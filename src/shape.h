@@ -2,12 +2,13 @@
 #define __SHAPE_H__
 #include "light.h"
 #include "vector.h"
+#include <glm/ext/vector_double3.hpp>
 
 class Shape {
 public:
-  Shape(const Vector &c, Texture *t, double ya, double pi, double ro);
+  Shape(const glm::dvec3 &c, Texture *t, double ya, double pi, double ro);
   double yaw, pitch, roll, xsin, xcos, ysin, ycos, zsin, zcos;
-  Vector center;
+  glm::dvec3 center;
   Texture *texture;
   double textureX, textureY, mapX, mapY, mapOffX, mapOffY;
   Texture *normalMap;
@@ -18,7 +19,7 @@ public:
   virtual void getColor(unsigned char *toFill, double *am, double *op,
                         double *ref, Autonoma *r, const Ray &ray,
                         unsigned int depth) = 0;
-  virtual Vector getNormal(const Vector &point) const = 0;
+  virtual glm::dvec3 getNormal(const glm::dvec3 &point) const = 0;
   virtual void setAngles(double yaw, double pitch, double roll) = 0;
   virtual void setYaw(double d) = 0;
   virtual void setPitch(double d) = 0;
@@ -27,11 +28,11 @@ public:
 protected:
   // Add cached values for solveScalers
   double cachedDenom;
-  Vector coeffsA, coeffsB, coeffsC;
+  glm::dvec3 coeffsA, coeffsB, coeffsC;
 
   // Helper to update cached values
-  void updateScalerCache(const Vector &right, const Vector &up,
-                         const Vector &vect) {
+  void updateScalerCache(const glm::dvec3 &right, const glm::dvec3 &up,
+                         const glm::dvec3 &vect) {
     // right = v1, up = v2, vect = v3
     cachedDenom = right.z * up.y * vect.x - right.y * up.z * vect.x -
                   right.z * up.x * vect.y + right.x * up.z * vect.y +

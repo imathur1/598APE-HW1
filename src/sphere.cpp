@@ -1,6 +1,14 @@
 #include "sphere.h"
+#include "vector.h"
+#include <glm/ext/vector_double3.hpp>
+#include <glm/geometric.hpp>
+// #include <glm/gtx/norm.hpp>
 
-Sphere::Sphere(const Vector &c, Texture *t, double ya, double pi, double ro,
+namespace glm {
+double length2(const glm::dvec3 &v) { return dot(v, v); }
+}; // namespace glm
+
+Sphere::Sphere(const glm::dvec3 &c, Texture *t, double ya, double pi, double ro,
                double rad)
     : Shape(c, t, ya, pi, ro) {
   textureX = textureY = 1.;
@@ -8,9 +16,9 @@ Sphere::Sphere(const Vector &c, Texture *t, double ya, double pi, double ro,
   radius = rad;
 }
 bool Sphere::getLightIntersection(const Ray &ray, double *fill) {
-  const double A = ray.vector.mag2();
-  const double B = 2 * ray.vector.dot(ray.point - center);
-  const double C = (ray.point - center).mag2() - radius * radius;
+  const double A = glm::length2(ray.vector);
+  const double B = 2 * glm::dot(ray.vector, ray.point - center);
+  const double C = glm::length2(ray.point - center) - radius * radius;
   const double descriminant = B * B - 4 * A * C;
   if (descriminant < 0. || descriminant < B * ((B >= 0) ? B : -B))
     return false;
@@ -21,7 +29,7 @@ bool Sphere::getLightIntersection(const Ray &ray, double *fill) {
   const double time = (root1 > 0) ? root1 : root2;
   if (time >= 1.)
     return false;
-  Vector point = ray.point + ray.vector * time;
+  glm::dvec3 point = ray.point + ray.vector * time;
   double data2 = (center.y - point.y + radius) / (2 * radius);
   double data3 = atan2(point.z - center.z, point.x - center.x);
   unsigned char temp[4];
@@ -37,9 +45,9 @@ bool Sphere::getLightIntersection(const Ray &ray, double *fill) {
   return false;
 }
 double Sphere::getIntersection(const Ray &ray) const {
-  const double A = ray.vector.mag2();
-  const double B = 2 * ray.vector.dot(ray.point - center);
-  const double C = (ray.point - center).mag2() - radius * radius;
+  const double A = glm::length2(ray.vector);
+  const double B = 2 * glm::dot(ray.vector, ray.point - center);
+  const double C = glm::length2(ray.point - center) - radius * radius;
   const double descriminant = B * B - 4 * A * C;
   if (descriminant < 0)
     return inf;
@@ -62,8 +70,8 @@ void Sphere::getColor(unsigned char *toFill, double *amb, double *op,
                     fix((yaw + data2) / M_TWO_PI / textureX),
                     fix((pitch / M_TWO_PI - (data3)) / textureY));
 }
-Vector Sphere::getNormal(const Vector &point) const {
-  Vector vect = point - center;
+glm::dvec3 Sphere::getNormal(const glm::dvec3 &point) const {
+  glm::dvec3 vect = point - center;
   /*   A x B = <x, y, z>
   <ay bz- az by,  bz ax - az bx, ax by - bx ay>
   az = 0
@@ -85,16 +93,16 @@ Vector Sphere::getNormal(const Vector &point) const {
     return vect;
   double data3 = (center.y - point.y + radius) / (2 * radius);
   double data2 = atan2(point.z - center.z, point.x - center.x);
-  vect = vect.normalize();
-  Vector right = Vector(vect.x, vect.z, -vect.y);
-  Vector up = Vector(vect.z, vect.y, -vect.x);
+  vect = glm::normalize(vect);
+  glm::dvec3 right = glm::dvec3(vect.x, vect.z, -vect.y);
+  glm::dvec3 up = glm::dvec3(vect.z, vect.y, -vect.x);
   double am, ref, op;
   unsigned char norm[3];
   normalMap->getColor(norm, &am, &op, &ref,
                       fix(((mapOffX + mapOffX) + data2) / M_TWO_PI / mapX),
                       fix(((mapOffY + mapOffY) / M_TWO_PI - data3) / mapY));
-  return ((norm[0] - 128) * right + (norm[1] - 128) * up + norm[2] * vect)
-      .normalize();
+  return glm::normalize((norm[0] - 128.0) * right + (norm[1] - 128.0) * up +
+                        (norm[2] * 1.0) * vect);
 }
 
 void Sphere::setAngles(double a, double b, double c) {
