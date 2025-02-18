@@ -1,5 +1,9 @@
 #include "disk.h"
-Disk::Disk(const Vector &c, Texture *t, double ya, double pi, double ro,
+#include "vector.h"
+#include <glm/ext/vector_double3.hpp>
+#include <glm/geometric.hpp>
+
+Disk::Disk(const glm::dvec3 &c, Texture *t, double ya, double pi, double ro,
            double tx, double ty)
     : Plane(c, t, ya, pi, ro, tx, ty) {}
 
@@ -7,8 +11,8 @@ double Disk::getIntersection(const Ray &ray) const {
   double time = Plane::getIntersection(ray);
   if (time == inf)
     return time;
-  Vector dist = solveScalersCached(ray.point + ray.vector * time - center,
-                                   cachedDenom, coeffsA, coeffsB, coeffsC);
+  glm::dvec3 dist = solveScalersCached(ray.point + ray.vector * time - center,
+                                       cachedDenom, coeffsA, coeffsB, coeffsC);
   return (dist.x * dist.x / (textureX * textureX) +
               dist.y * dist.y / (textureY * textureY) >
           1)
@@ -17,13 +21,13 @@ double Disk::getIntersection(const Ray &ray) const {
 }
 
 bool Disk::getLightIntersection(const Ray &ray, double *fill) {
-  const double t = ray.vector.dot(vect);
-  const double norm = vect.dot(ray.point) + d;
+  const double t = glm::dot(ray.vector, vect);
+  const double norm = glm::dot(vect, ray.point) + d;
   const double r = -norm / t;
   if (r <= 0. || r >= 1.)
     return false;
-  Vector dist = solveScalersCached(ray.point + ray.vector * r - center,
-                                   cachedDenom, coeffsA, coeffsB, coeffsC);
+  glm::dvec3 dist = solveScalersCached(ray.point + ray.vector * r - center,
+                                       cachedDenom, coeffsA, coeffsB, coeffsC);
   if (dist.x * dist.x / (textureX * textureX) +
           dist.y * dist.y / (textureY * textureY) >
       1)

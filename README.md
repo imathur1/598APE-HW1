@@ -1,5 +1,23 @@
 # 598APE-HW1
 
+## Quick Start
+- Build and run the docker container:
+    ```bash
+    docker build -t cs598ape -f docker/Dockerfile .
+    docker run -p 8000:8000 --privileged -it -v `pwd`:/host cs598ape /bin/bash
+    ```
+- Compile the program:
+    ```bash
+    make -j PROFILE=0
+    ```
+- Run the program on the test cases:
+    ```bash
+    ./test.sh pianoroom 500 500
+    ./test.sh globe 1000 1000 24
+    ./test.sh elephant 200 200
+    ./test.sh realelephant 100 100
+    ```
+
 This repository contains code for homework 1 of 598APE.
 
 In particular, this repository is an implementation of a Raytracer.

@@ -2,10 +2,13 @@
 #include "camera.h"
 #include "shape.h"
 #include "Textures/texture.h"
-// Define a constant for 255
+#include "vector.h"
+#include <glm/ext/vector_double3.hpp>
+#include <glm/geometric.hpp>
+
 const unsigned char MAX_COLOR_VALUE = 255.;
 
-Light::Light(const Vector &cente, unsigned char *colo) : center(cente) {
+Light::Light(const glm::dvec3 &cente, unsigned char *colo) : center(cente) {
   color = colo;
 }
 
@@ -68,17 +71,19 @@ void Autonoma::removeLight(LightNode *s) {
   free(s);
 }
 
-void getLight(double *tColor, Autonoma *aut, const Vector &point,
-              const Vector &norm, unsigned char flip) {
-  double normMag = norm.mag();
+void getLight(double *tColor, Autonoma *aut, const glm::dvec3 &point,
+              const glm::dvec3 &norm, unsigned char flip) {
+  double normMag = glm::length(norm);
   tColor[0] = tColor[1] = tColor[2] = 0.;
   LightNode *t = aut->lightStart;
   double lightColor[3];
   while (t != NULL) {
+
     lightColor[0] = t->data->color[0] / MAX_COLOR_VALUE;
     lightColor[1] = t->data->color[1] / MAX_COLOR_VALUE;
     lightColor[2] = t->data->color[2] / MAX_COLOR_VALUE;
-    Vector ra = t->data->center - point;
+     glm::dvec3 ra = t->data->center - point;
+
     bool hit = false;
     const Ray &ray = Ray(point + ra * .01, ra);
     for (Shape *shape : aut->shapes) {
@@ -87,8 +92,9 @@ void getLight(double *tColor, Autonoma *aut, const Vector &point,
         break;
       }
     }
+
     if (!hit) {
-      double perc = (norm.dot(ra) / (ra.mag() * normMag));      
+      double perc = (glm::dot(norm, ra) / (glm::length(ra) * normMag));    
       if (perc < 0 && flip)
         perc = -perc;
       if (perc > 0) {

@@ -1,16 +1,19 @@
 #include "box.h"
+#include "vector.h"
+#include <glm/ext/vector_double3.hpp>
+#include <glm/geometric.hpp>
 
-Box::Box(const Vector &c, Texture *t, double ya, double pi, double ro,
+Box::Box(const glm::dvec3 &c, Texture *t, double ya, double pi, double ro,
          double tx, double ty)
     : Plane(c, t, ya, pi, ro, tx, ty) {}
-Box::Box(const Vector &c, Texture *t, double ya, double pi, double ro,
+Box::Box(const glm::dvec3 &c, Texture *t, double ya, double pi, double ro,
          double tx)
     : Plane(c, t, ya, pi, ro, tx, tx) {}
 
 double Box::getIntersection(const Ray &ray) const {
   double time = Plane::getIntersection(ray);
-  Vector dist = solveScalersCached(ray.point + ray.vector * time - center,
-                                   cachedDenom, coeffsA, coeffsB, coeffsC);
+  glm::dvec3 dist = solveScalersCached(ray.point + ray.vector * time - center,
+                                       cachedDenom, coeffsA, coeffsB, coeffsC);
   if (time == inf)
     return time;
   return (((dist.x >= 0) ? dist.x : -dist.x) > textureX / 2 ||
@@ -20,13 +23,13 @@ double Box::getIntersection(const Ray &ray) const {
 }
 
 bool Box::getLightIntersection(const Ray &ray, double *fill) {
-  const double t = ray.vector.dot(vect);
-  const double norm = vect.dot(ray.point) + d;
+  const double t = glm::dot(ray.vector, vect);
+  const double norm = glm::dot(vect, ray.point) + d;
   const double r = -norm / t;
   if (r <= 0. || r >= 1.)
     return false;
-  Vector dist = solveScalersCached(ray.point + ray.vector * r - center,
-                                   cachedDenom, coeffsA, coeffsB, coeffsC);
+  glm::dvec3 dist = solveScalersCached(ray.point + ray.vector * r - center,
+                                       cachedDenom, coeffsA, coeffsB, coeffsC);
   if (((dist.x >= 0) ? dist.x : -dist.x) > textureX / 2 ||
       ((dist.y >= 0) ? dist.y : -dist.y) > textureY / 2)
     return false;
