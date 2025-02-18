@@ -87,7 +87,8 @@ void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
       toFill[2] = (unsigned char)(toFill[2] * opacity + col[2] * (1 - opacity));
     }
     if (reflection > 1e-6) {
-      glm::dvec3 norm = glm::normalize(normal);
+
+      glm::dvec3 norm = glm::normalize(curShape->getNormal(intersect));
       glm::dvec3 vec = ray.vector - 2.0 * norm * (glm::dot(norm, ray.vector));
       Ray nextRay = Ray(intersect + vec * 1E-4, vec);
       calcColor(col, c, nextRay, depth + 1);

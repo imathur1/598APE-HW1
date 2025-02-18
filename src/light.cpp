@@ -4,6 +4,7 @@
 #include "vector.h"
 #include <glm/ext/vector_double3.hpp>
 #include <glm/geometric.hpp>
+
 const unsigned char MAX_COLOR_VALUE = 255.;
 
 Light::Light(const glm::dvec3 &cente, unsigned char *colo) : center(cente) {
@@ -77,9 +78,11 @@ void getLight(double *tColor, Autonoma *aut, const glm::dvec3 &point,
   double lightColor[3];
   while (t != NULL) {
     double lightColor[3];
+
     lightColor[0] = t->data->color[0] / MAX_COLOR_VALUE;
     lightColor[1] = t->data->color[1] / MAX_COLOR_VALUE;
     lightColor[2] = t->data->color[2] / MAX_COLOR_VALUE;
+
     glm::dvec3 ra = t->data->center - point;
     bool hit = false;
     const Ray &ray = Ray(point + ra * .01, ra);
@@ -89,6 +92,8 @@ void getLight(double *tColor, Autonoma *aut, const glm::dvec3 &point,
         break;
       }
     }
+
+
     if (!hit) {
       double perc = (glm::dot(norm, ra) / (glm::length(ra) * normMag));
       if (perc < 0 && flip)
