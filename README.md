@@ -18,6 +18,184 @@
     ./test.sh realelephant 100 100
     ```
 
+The tests evaluate the performance of rendering the scenes, while also comparing to a baseline without any optimizations to ensure correctness. For example, for pianoroom there is a baseline file `output/pianoroom_correct.ppm`
+
+## Optimizations
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+
+  <div style="flex: 1; min-width: 300px; margin-right: 20px;">
+    <h3>Globe Optimizations</h3>
+    <table border="1" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>Optimization</th>
+          <th>Avg. Runtime (sec)</th>
+          <th>Relative Speedup</th>
+          <th>Hash</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Baseline</td>
+          <td>149.401</td>
+          <td>--</td>
+          <td>d649112</td>
+        </tr>
+        <tr>
+          <td>Clang &amp; -O3</td>
+          <td>87.353</td>
+          <td>1.710</td>
+          <td>2e154bc</td>
+        </tr>
+        <tr>
+          <td>Pass-by-reference + const</td>
+          <td>79.510</td>
+          <td>1.098</td>
+          <td>26828ab</td>
+        </tr>
+        <tr>
+          <td>calcColor sort into find min</td>
+          <td>62.792</td>
+          <td>1.266</td>
+          <td>54b0047</td>
+        </tr>
+        <tr>
+          <td>Cache solveScaler</td>
+          <td>61.583</td>
+          <td>1.018</td>
+          <td>d30fa51</td>
+        </tr>
+        <tr>
+          <td>Inline vector fns</td>
+          <td>59.333</td>
+          <td>1.038</td>
+          <td>a497a1f</td>
+        </tr>
+        <tr>
+          <td>std::vector to store Shapes</td>
+          <td>59.586</td>
+          <td>0.996</td>
+          <td>adcef25</td>
+        </tr>
+        <tr>
+          <td>OpenMP</td>
+          <td>20.617</td>
+          <td>2.895</td>
+          <td>12eb706</td>
+        </tr>
+        <tr>
+          <td>cache animation file data</td>
+          <td>18.044</td>
+          <td>1.143</td>
+          <td>ddf5d3b</td>
+        </tr>
+        <tr>
+          <td>Swap Vector for glm::dvec3</td>
+          <td>15.979</td>
+          <td>1.129</td>
+          <td>890fac4</td>
+        </tr>
+        <tr>
+          <td>Use -O2 &amp; -march=native</td>
+          <td>15.991</td>
+          <td>1.000</td>
+          <td>2d1de14</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="flex: 1; min-width: 300px; margin-left: 20px;">
+    <h3>Pianoroom Optimizations</h3>
+    <table border="1" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>Optimization</th>
+          <th>Avg. Runtime (sec)</th>
+          <th>Relative Speedup</th>
+          <th>Hash</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Baseline</td>
+          <td>2.273</td>
+          <td>--</td>
+          <td>d649112</td>
+        </tr>
+        <tr>
+          <td>Clang &amp; -O3</td>
+          <td>1.104</td>
+          <td>2.061</td>
+          <td>2e154bc</td>
+        </tr>
+        <tr>
+          <td>Pass-by-reference + const</td>
+          <td>0.908</td>
+          <td>1.214</td>
+          <td>26828ab</td>
+        </tr>
+        <tr>
+          <td>calcColor sort into find min</td>
+          <td>0.678</td>
+          <td>1.341</td>
+          <td>54b0047</td>
+        </tr>
+        <tr>
+          <td>Cache solveScaler</td>
+          <td>0.555</td>
+          <td>1.220</td>
+          <td>d30fa51</td>
+        </tr>
+        <tr>
+          <td>Inline vector fns</td>
+          <td>0.603</td>
+          <td>0.920</td>
+          <td>a497a1f</td>
+        </tr>
+        <tr>
+          <td>std::vector to store Shapes</td>
+          <td>0.600</td>
+          <td>1.005</td>
+          <td>adcef25</td>
+        </tr>
+        <tr>
+          <td>OpenMP</td>
+          <td>0.218</td>
+          <td>2.756</td>
+          <td>12eb706</td>
+        </tr>
+        <tr>
+          <td>getLightIntersection early exit</td>
+          <td>0.211</td>
+          <td>1.032</td>
+          <td>0c1b1bd</td>
+        </tr>
+        <tr>
+          <td>cache animation file data</td>
+          <td>0.172</td>
+          <td>1.224</td>
+          <td>ddf5d3b</td>
+        </tr>
+        <tr>
+          <td>Swap Vector for glm::dvec3</td>
+          <td>0.133</td>
+          <td>1.298</td>
+          <td>890fac4</td>
+        </tr>
+        <tr>
+          <td>Use -O2 &amp; -march=native</td>
+          <td>0.130</td>
+          <td>1.021</td>
+          <td>2d1de14</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+
 This repository contains code for homework 1 of 598APE.
 
 In particular, this repository is an implementation of a Raytracer.
