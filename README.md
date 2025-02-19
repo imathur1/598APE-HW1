@@ -38,6 +38,20 @@ Our charts were generated in `analysis.py` using the following commands:
     pip install matplotlib
     ```
 
+You can run these optimizations with the following commands:
+1. Checkout hash:
+   ```bash
+   git checkout <HASH>
+   ```
+2. Recompile program:
+    ```bash
+    make -j
+    ```
+3. Run command for producing output (pianoroom example is below):
+    ```bash
+    ./main.exe -i inputs/pianoroom.ray --ppm -o output/pianoroom.ppm -H 500 -W 500
+    ```
+
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
 
   <div style="flex: 1; min-width: 300px; margin-right: 20px;">
@@ -68,7 +82,7 @@ Our charts were generated in `analysis.py` using the following commands:
           <td>Pass-by-reference + const</td>
           <td>79.510</td>
           <td>1.098</td>
-          <td>26828ab</td>
+          <td>c22c9a1</td>
         </tr>
         <tr>
           <td>calcColor sort into find min</td>
@@ -98,7 +112,7 @@ Our charts were generated in `analysis.py` using the following commands:
           <td>OpenMP</td>
           <td>20.617</td>
           <td>2.895</td>
-          <td>12eb706</td>
+          <td>e130be9</td>
         </tr>
         <tr>
           <td>cache animation file data</td>
@@ -150,7 +164,7 @@ Our charts were generated in `analysis.py` using the following commands:
           <td>Pass-by-reference + const</td>
           <td>0.908</td>
           <td>1.214</td>
-          <td>26828ab</td>
+          <td>c22c9a1</td>
         </tr>
         <tr>
           <td>calcColor sort into find min</td>
@@ -180,7 +194,7 @@ Our charts were generated in `analysis.py` using the following commands:
           <td>OpenMP</td>
           <td>0.218</td>
           <td>2.756</td>
-          <td>12eb706</td>
+          <td>e130be9</td>
         </tr>
         <tr>
           <td>getLightIntersection early exit</td>
