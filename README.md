@@ -18,7 +18,7 @@
     ./test.sh realelephant 100 100
     ```
 
-The tests evaluate the performance of rendering the scenes, while also comparing to a baseline without any optimizations to ensure correctness. For example, for pianoroom there is a baseline file `output/pianoroom_correct.ppm`
+The tests evaluate the performance of rendering the scenes, while also comparing to a baseline without any optimizations to ensure correctness. For example, for pianoroom there is a baseline file `output/pianoroom_correct.ppm`. Note that for the Vector -> glm::dvec3 change and onward, the globe test fails. While the output looks identical, we hypothesize there is some small floating point differences.
 
 <div style="display: flex; justify-content: space-between;">
   <img src="output/globe.png" alt="Globe" style="width: 32%; margin-right: 1%;">
@@ -124,13 +124,13 @@ You can run these optimizations with the following commands:
           <td>Swap Vector for glm::dvec3</td>
           <td>15.979</td>
           <td>1.129</td>
-          <td>890fac4</td>
+          <td>d907aeb</td>
         </tr>
         <tr>
           <td>Use -O2 &amp; -march=native</td>
           <td>15.991</td>
           <td>1.000</td>
-          <td>2d1de14</td>
+          <td>d907aeb</td>
         </tr>
       </tbody>
     </table>
@@ -212,13 +212,13 @@ You can run these optimizations with the following commands:
           <td>Swap Vector for glm::dvec3</td>
           <td>0.133</td>
           <td>1.298</td>
-          <td>890fac4</td>
+          <td>d907aeb</td>
         </tr>
         <tr>
           <td>Use -O2 &amp; -march=native</td>
           <td>0.130</td>
           <td>1.021</td>
-          <td>2d1de14</td>
+          <td>d907aeb</td>
         </tr>
       </tbody>
     </table>
