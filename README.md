@@ -20,8 +20,24 @@
 
 The tests evaluate the performance of rendering the scenes, while also comparing to a baseline without any optimizations to ensure correctness. For example, for pianoroom there is a baseline file `output/pianoroom_correct.ppm`
 
+<div style="display: flex; justify-content: space-between;">
+  <img src="output/globe.png" alt="Globe" style="width: 32%; margin-right: 1%;">
+  <img src="output/pianoroom.png" alt="Pianoroom" style="width: 32%; margin-right: 1%;">
+  <img src="output/realelephant.png" alt="Elephant" style="width: 32%;">
+</div>
+
 ## Optimizations
 A full analysis can be found in our paper, `Mini_Paper_1__Raytracer.pdf`
+Our charts were generated in `analysis.py` using the following commands:
+1. Install pip:
+   ```bash
+   sudo apt install python3-pip
+   ```
+2. Install matplotlib:
+    ```bash
+    pip install matplotlib
+    ```
+
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
 
   <div style="flex: 1; min-width: 300px; margin-right: 20px;">

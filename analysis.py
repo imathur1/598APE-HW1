@@ -56,4 +56,5 @@ axs[1].set_ylabel("Execution Time (seconds)")
 axs[1].set_title("Pianoroom")
 
 plt.tight_layout()
-plt.show()
+# plt.show()
+plt.savefig('optimization_results.png', dpi=300, bbox_inches='tight')
