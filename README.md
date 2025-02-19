@@ -21,6 +21,7 @@
 The tests evaluate the performance of rendering the scenes, while also comparing to a baseline without any optimizations to ensure correctness. For example, for pianoroom there is a baseline file `output/pianoroom_correct.ppm`
 
 ## Optimizations
+A full analysis can be found in our paper, `Mini_Paper_1__Raytracer.pdf`
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
 
   <div style="flex: 1; min-width: 300px; margin-right: 20px;">
